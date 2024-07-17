@@ -1,14 +1,124 @@
+import { useState, useRef, useCallback } from 'react';
+import clsx from 'clsx';
+import {
+	ArticleStateType,
+	backgroundColors,
+	contentWidthArr,
+	defaultArticleState,
+	fontColors,
+	fontFamilyOptions,
+	fontSizeOptions,
+	OptionType,
+} from 'src/constants/articleProps';
 import { ArrowButton } from 'components/arrow-button';
 import { Button } from 'components/button';
+import { Separator } from '../separator';
+import { Select } from '../select';
+import { Text } from '../text';
+import { RadioGroup } from '../radio-group';
 
 import styles from './ArticleParamsForm.module.scss';
+import { useOutsideClickClose } from '../select/hooks/useOutsideClickClose';
 
-export const ArticleParamsForm = () => {
+type ArticleParamsFormProps = {
+	onSubmit?: (selectArticleState: ArticleStateType) => void;
+	onReset?: (selectArticleState: ArticleStateType) => void;
+	onToggle?: (selectArticleState: boolean) => void;
+	isOpenForm: boolean;
+	setIsFormOpen: (open: boolean) => void;
+};
+
+export const ArticleParamsForm: React.FunctionComponent<
+	ArticleParamsFormProps
+> = ({ onSubmit, onReset, onToggle, isOpenForm, setIsFormOpen }) => {
+	const [selectArticleState, setSelectArticleState] =
+		useState(defaultArticleState);
+	const rootRef = useRef<HTMLDivElement>(null);
+
+	const switcher = () => {
+		onToggle?.(!isOpenForm);
+	};
+
+	const handleChange =
+		(key: keyof typeof selectArticleState) => (option: OptionType) => {
+			setSelectArticleState((prevParams) => ({
+				...prevParams,
+				[key]: option,
+			}));
+		};
+
+	const formSubmitHandler = useCallback(
+		(e: React.FormEvent<HTMLFormElement>): void => {
+			e.preventDefault();
+			onSubmit?.(selectArticleState);
+		},
+		[selectArticleState, onSubmit]
+	);
+
+	const resetToDefault = useCallback((): void => {
+		setSelectArticleState(defaultArticleState);
+		onReset?.(defaultArticleState);
+	}, [onReset]);
+
+	const panelAppearance = clsx(styles.container, {
+		[styles.container_open]: isOpenForm,
+	});
+
+	useOutsideClickClose({
+		isOpen: isOpenForm,
+		rootRef,
+		onClose: switcher,
+		onChange: setIsFormOpen,
+	});
+
 	return (
 		<>
-			<ArrowButton />
-			<aside className={styles.container}>
-				<form className={styles.form}>
+			<ArrowButton isOpen={isOpenForm} onClick={switcher} />
+			<aside className={panelAppearance} ref={rootRef}>
+				<form
+					className={styles.form}
+					onSubmit={formSubmitHandler}
+					onReset={resetToDefault}>
+					<Text size={31} weight={800} uppercase>
+						{'Задайте параметры'}
+					</Text>
+					<Select
+						selected={selectArticleState.fontFamilyOption}
+						options={fontFamilyOptions}
+						placeholder='Open Sans'
+						onChange={handleChange('fontFamilyOption')}
+						title='Шрифт'
+					/>
+					<RadioGroup
+						key={selectArticleState.fontSizeOption.value}
+						selected={selectArticleState.fontSizeOption}
+						options={fontSizeOptions}
+						onChange={handleChange('fontSizeOption')}
+						name='fontSizeOption'
+						title={'Размер шрифта'}
+					/>
+					<Select
+						selected={selectArticleState.fontColor}
+						options={fontColors}
+						placeholder={selectArticleState.fontColor.title}
+						onChange={handleChange('fontColor')}
+						title='Цвет шрифта'
+					/>
+					<Separator />
+					<Select
+						selected={selectArticleState.backgroundColor}
+						options={backgroundColors}
+						placeholder={selectArticleState.backgroundColor.title}
+						onChange={handleChange('backgroundColor')}
+						title='Цвет фона'
+					/>
+					<Select
+						selected={selectArticleState.contentWidth}
+						options={contentWidthArr}
+						placeholder={selectArticleState.contentWidth.title}
+						onChange={handleChange('contentWidth')}
+						title='Ширина контента'
+					/>
 					<div className={styles.bottomContainer}>
 						<Button title='Сбросить' type='reset' />
 						<Button title='Применить' type='submit' />
