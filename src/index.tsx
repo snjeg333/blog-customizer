@@ -1,12 +1,9 @@
 import { createRoot } from 'react-dom/client';
-import { StrictMode, CSSProperties, useState, useCallback } from 'react';
+import { StrictMode, CSSProperties, useState } from 'react';
 import clsx from 'clsx';
 import { Article } from './components/article/Article';
 import { ArticleParamsForm } from './components/article-params-form/ArticleParamsForm';
-import {
-	ArticleStateType,
-	defaultArticleState,
-} from './constants/articleProps';
+import { defaultArticleState } from './constants/articleProps';
 import './styles/index.scss';
 import styles from './styles/index.module.scss';
 
@@ -15,19 +12,6 @@ const root = createRoot(domNode);
 
 const App = () => {
 	const [articleState, setArticleState] = useState(defaultArticleState);
-	const [isFormOpen, setIsFormOpen] = useState(false);
-
-	const toggleForm = useCallback(() => setIsFormOpen((prev) => !prev), []);
-
-	const handleFormSubmit = useCallback(
-		(props: ArticleStateType) => setArticleState(props),
-		[]
-	);
-
-	const handleFormReset = useCallback(
-		(props: ArticleStateType) => setArticleState(props),
-		[]
-	);
 
 	return (
 		<div
@@ -41,13 +25,7 @@ const App = () => {
 					'--bg-color': articleState.backgroundColor.value,
 				} as CSSProperties
 			}>
-			<ArticleParamsForm
-				onSubmit={handleFormSubmit}
-				onReset={handleFormReset}
-				onToggle={toggleForm}
-				isOpenForm={isFormOpen}
-				setIsFormOpen={setIsFormOpen}
-			/>
+			<ArticleParamsForm setArticleState={setArticleState} />
 			<Article />
 		</div>
 	);

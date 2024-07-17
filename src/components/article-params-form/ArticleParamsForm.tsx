@@ -21,21 +21,20 @@ import styles from './ArticleParamsForm.module.scss';
 import { useOutsideClickClose } from '../select/hooks/useOutsideClickClose';
 
 type ArticleParamsFormProps = {
-	onSubmit?: (selectArticleState: ArticleStateType) => void;
-	onReset?: (selectArticleState: ArticleStateType) => void;
+	setArticleState: (selectArticleState: ArticleStateType) => void;
 	onToggle?: (selectArticleState: boolean) => void;
-	isOpenForm: boolean;
-	setIsFormOpen: (open: boolean) => void;
 };
 
 export const ArticleParamsForm: React.FunctionComponent<
 	ArticleParamsFormProps
-> = ({ onSubmit, onReset, onToggle, isOpenForm, setIsFormOpen }) => {
+> = ({ setArticleState, onToggle }) => {
 	const [selectArticleState, setSelectArticleState] =
 		useState(defaultArticleState);
+	const [isOpenForm, setIsFormOpen] = useState(false);
 	const rootRef = useRef<HTMLDivElement>(null);
 
 	const switcher = () => {
+		setIsFormOpen((prev) => !prev);
 		onToggle?.(!isOpenForm);
 	};
 
@@ -50,15 +49,15 @@ export const ArticleParamsForm: React.FunctionComponent<
 	const formSubmitHandler = useCallback(
 		(e: React.FormEvent<HTMLFormElement>): void => {
 			e.preventDefault();
-			onSubmit?.(selectArticleState);
+			setArticleState(selectArticleState);
 		},
-		[selectArticleState, onSubmit]
+		[selectArticleState, setArticleState]
 	);
 
 	const resetToDefault = useCallback((): void => {
 		setSelectArticleState(defaultArticleState);
-		onReset?.(defaultArticleState);
-	}, [onReset]);
+		setArticleState(defaultArticleState);
+	}, [setArticleState]);
 
 	const panelAppearance = clsx(styles.container, {
 		[styles.container_open]: isOpenForm,
