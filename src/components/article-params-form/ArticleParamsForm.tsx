@@ -18,7 +18,7 @@ import { Text } from '../text';
 import { RadioGroup } from '../radio-group';
 
 import styles from './ArticleParamsForm.module.scss';
-import { useOutsideClickClose } from '../select/hooks/useOutsideClickClose';
+import { useClose } from 'src/hooks/useClose';
 
 type ArticleParamsFormProps = {
 	setArticleState: (selectArticleState: ArticleStateType) => void;
@@ -63,11 +63,10 @@ export const ArticleParamsForm: React.FunctionComponent<
 		[styles.container_open]: isOpenForm,
 	});
 
-	useOutsideClickClose({
+	useClose({
 		isOpen: isOpenForm,
-		rootRef,
 		onClose: switcher,
-		onChange: setIsFormOpen,
+		rootRef: rootRef,
 	});
 
 	return (
